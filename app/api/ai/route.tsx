@@ -26,12 +26,12 @@ Do not ask multiple questions at once, and never ask irrelevant questions.
 If any answer is missing or unclear, politely ask the user to clarify before proceeding.
 Always maintain a conversational, interactive style while asking questions.
 
-Along with response also send which ui component to display for generative UI for example budget/groupSize/TripDuration/Final, where Final means generating or showing final plan.
+Along with response also send which ui component to display for generative UI for example budget/groupSize/tripDuration/final, where Final means generating or showing final plan.
 
 Once all required information is collected, generate and return a strict JSON response only (no explanations or extra text) with following JSON schema:
 {
   "resp": "Text Resp",
-  "ui": "budget/groupSize/TripDuration/Final"
+  "ui": "budget/groupSize/tripDuration/final"
 }`;
 
 export async function POST(req: NextRequest) {
