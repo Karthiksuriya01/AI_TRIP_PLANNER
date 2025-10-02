@@ -20,6 +20,7 @@ const ChatBox = () => {
   const [userInput, setUserInput] = useState("");
   const [loading, setLoading] = useState(false);
   const chatRef = useRef<HTMLDivElement | null>(null);
+  const [isFinal, setisFinal] = useState(false);
 
   // Auto scroll to bottom on new message
   useEffect(() => {
@@ -27,6 +28,18 @@ const ChatBox = () => {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
   }, [messages]);
+
+  //for final
+  useEffect(() => {
+    const lastMsg = messages[messages.length-1];
+    if(lastMsg?.ui == 'final')
+    {
+      setisFinal(true)
+      setUserInput('OK, Great')
+      onSend()
+    }
+      
+  })
 
   const onSend = async () => {
     if (!userInput.trim()) return;
@@ -46,12 +59,13 @@ const ChatBox = () => {
     try {
       const result = await axios.post("/api/ai", {
         messages: updatedMessages,  // Use the updated messages array
+        isFinal: isFinal
       });
 
       console.log("API Response JSON:", result.data);
-
+      
       // Update with assistant's response
-      setMessages((prev) => [
+      !isFinal && setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
@@ -87,6 +101,8 @@ const ChatBox = () => {
         onSend();
       }} />
     }
+    // else if(ui == 'final')
+    //   return 
     return null;
   }
 

@@ -34,15 +34,71 @@ Once all required information is collected, generate and return a strict JSON re
   "ui": "budget/groupSize/tripDuration/final"
 }`;
 
+const FINAL_PROMPT = `Generate Travel Plan with give details,give me Hotels options list with HotelName,Hotel address, Price, hotel image url, geo coordinates, rating, description and suggest itenary with placename, Place Details, Place Image Url, Geo Cordinates, Place address, ticket Pricing, Time travel each of the location , with each day plan with best time to visit in JSON Format
+Output Schema:
+{
+  "trip_plan":{
+     "destination":"string",
+     "duration":"string",
+     "origin":"string",
+     "budget":"string",
+     "group_size":"string",
+     "hotels":[
+       
+      {
+         "hotel_name":"string",
+         "hotel_address":"string",
+         "price_per_night":"string",
+         "hotel_image_url":"string",
+         "geo_cordinates":{
+           "latitude":"number",
+           "longitude":"number",
+           }
+          "rating":"number",
+          "description":"string"
+
+       }
+
+
+      ],
+     "itinerary":[
+       {
+          "day":"number",
+          "day_plan":"string",
+          "best_time_to_visit_day":"string",
+          "activities":[
+           {
+	    "place_name":"string",
+            "place_details":"string",
+            "place_image_url":"string",
+            "geo_coordinates":{
+               "latitude":"number",
+               "longitude":"number',
+             },
+             "place_address":"string",
+             "ticket_pricing":"string",
+	     "time_travel_each_location":"string",
+	     "best_time_to_visit":"string" 
+            }            
+           ]
+        }
+     ]		
+   
+   }
+
+}
+`
+
+
 export async function POST(req: NextRequest) {
     try {
-        const { messages } = await req.json(); // ✅ fixed spelling (was messaages)
+        const { messages,isFinal} = await req.json(); // ✅ fixed spelling (was messaages)
 
         const completion = await openai.chat.completions.create({
             model: "google/gemini-2.5-flash-lite-preview-09-2025",
             response_format: { type: "json_object" }, // force JSON
             messages: [
-                { role: "user", content: PROMPT },
+                { role: "user", content: isFinal? FINAL_PROMPT : PROMPT },
                 ...messages,
             ],
         });
