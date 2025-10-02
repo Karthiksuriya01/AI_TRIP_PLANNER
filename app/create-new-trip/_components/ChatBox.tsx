@@ -5,10 +5,14 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
+import GroupSizeUi from "./GroupSizeUi";
+import BudgetType from "./BudgetType";
+import DaysSelector from "./DaysSelector";
 
 type Message = {
   role: "user" | "assistant";
   content: string;
+  ui: string;
 };
 
 const ChatBox = () => {
@@ -30,37 +34,61 @@ const ChatBox = () => {
     const newMsg: Message = {
       role: "user",
       content: userInput,
+      ui: ""
     };
 
-    setMessages((prev) => [...prev, newMsg]);
+    // Update messages first
+    const updatedMessages = [...messages, newMsg];
+    setMessages(updatedMessages);
     setUserInput("");
     setLoading(true);
 
     try {
       const result = await axios.post("/api/ai", {
-        messages: [...messages, newMsg],
+        messages: updatedMessages,  // Use the updated messages array
       });
 
-         // 👇 Log the raw JSON response
-    console.log("API Response JSON:", result.data);
+      console.log("API Response JSON:", result.data);
 
+      // Update with assistant's response
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
           content: result.data.resp || "No response received",
+          ui: result?.data?.ui
         },
       ]);
     } catch (err) {
       console.error("Error:", err);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "⚠️ Something went wrong." },
+        { role: "assistant", content: "⚠️ Something went wrong.", ui: "" },
       ]);
     } finally {
       setLoading(false);
     }
   };
+
+  const RenderGenerativeUi = (ui: string) => {
+    if (ui === 'budget') {
+      return <BudgetType onSelecteOption={(v) => {
+        setUserInput(v);
+        onSend();
+      }} />
+    } else if (ui === 'groupSize') {
+      return <GroupSizeUi onSelecteOption={(v: string) => {
+        setUserInput(v);
+        onSend();
+      }} />
+    } else if (ui === 'tripDuration') {
+      return <DaysSelector onSelecteOption={(v: string) => {
+        setUserInput(v);
+        onSend();
+      }} />
+    }
+    return null;
+  }
 
   return (
     <div className="h-[90vh] flex flex-col">
@@ -82,6 +110,8 @@ const ChatBox = () => {
                 }`}
             >
               {msg.content}
+              {RenderGenerativeUi(msg.ui)}
+              {/* {console.log(msg.ui)} */}
             </div>
           </div>
         ))}
