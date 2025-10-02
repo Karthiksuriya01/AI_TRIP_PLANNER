@@ -1,77 +1,127 @@
-"use client"
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import axios from 'axios';
-import { Send } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState, useRef, useEffect } from "react";
+import axios from "axios";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Send } from "lucide-react";
 
 type Message = {
-  role: string,
-  content: string
-}
+  role: "user" | "assistant";
+  content: string;
+};
 
 const ChatBox = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [userInput, setUserInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const chatRef = useRef<HTMLDivElement | null>(null);
 
-  const [messages, setMessages] = useState<Message[]>([])
-  const [userInput, setUserInput] = useState<string>();
-  const onSend = async () => {
-    if (!userInput?.trim()) return
-
-    setUserInput('')
-    const newMsg: Message = {
-      role: 'user',
-      content: userInput
+  // Auto scroll to bottom on new message
+  useEffect(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
+  }, [messages]);
 
-    setMessages((prev: Message[]) => [...prev, newMsg])
+  const onSend = async () => {
+    if (!userInput.trim()) return;
 
-    const result = await axios.post('/api/ai', {
-      messages: [...messages, newMsg]
-    })
-    setMessages((prev: Message[]) => [...prev, {
-      role: 'assistant',
-      content: result?.data?.resp
-    }])
+    const newMsg: Message = {
+      role: "user",
+      content: userInput,
+    };
 
-    console.log(result.data)
-  }
+    setMessages((prev) => [...prev, newMsg]);
+    setUserInput("");
+    setLoading(true);
+
+    try {
+      const result = await axios.post("/api/ai", {
+        messages: [...messages, newMsg],
+      });
+
+         // 👇 Log the raw JSON response
+    console.log("API Response JSON:", result.data);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: result.data.resp || "No response received",
+        },
+      ]);
+    } catch (err) {
+      console.error("Error:", err);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "⚠️ Something went wrong." },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className='h-[90vh] flex flex-col'>
-      {/* display messages */}
-      <section className='flex-1 overflow-auto p-4'>
-        {/* User Message - Right aligned */}
-        <div className="flex justify-end mt-2">
-          <div className='max-w-lg text-white px-4 py-2 rounded-lg  bg-primary'>
-            User Msg
+    <div className="h-[90vh] flex flex-col">
+      {/* Chat messages */}
+      <section
+        ref={chatRef}
+        className="flex-1 overflow-auto p-4 space-y-3 bg-gray-50 rounded-lg"
+      >
+        {messages.map((msg, i) => (
+          <div
+            key={i}
+            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"
+              }`}
+          >
+            <div
+              className={`max-w-lg px-4 py-2 rounded-2xl text-sm shadow ${msg.role === "user"
+                ? "bg-primary text-white"
+                : "bg-gray-200 text-gray-800"
+                }`}
+            >
+              {msg.content}
+            </div>
           </div>
-        </div>
+        ))}
 
-        {/* Agent Message - Left aligned */}
-        <div className="flex justify-start mt-2">
-          <div className='max-w-lg bg-gray-100 px-4 py-2 rounded-lg'>
-            Agent Message
+        {loading && (
+          <div className="flex justify-start">
+            <div className="px-4 py-2 bg-gray-200 text-gray-600 rounded-2xl text-sm italic">
+              Typing...
+            </div>
           </div>
-        </div>
+        )}
       </section>
 
-      {/* User Input Box */}
-      <section>
-        <div className='border rounded-2xl p-4 relative bg-background'>
+      {/* User input */}
+      <section className="mt-2">
+        <div className="border rounded-2xl p-4 relative bg-background">
           <Textarea
-            className='w-full h-20 bg-transparent border-none focus-visible:ring-0 shadow-none resize-none'
+            className="w-full h-20 bg-transparent border-none focus-visible:ring-0 shadow-none resize-none"
             placeholder="Type your message..."
-            onChange={e => setUserInput(e.target.value)}
             value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                onSend();
+              }
+            }}
           />
-          <Button size={'icon'} className='absolute right-6 bottom-6' onClick={onSend}>
-            <Send className='h-4 w-4' />
+          <Button
+            size="icon"
+            className="absolute right-6 bottom-6"
+            onClick={onSend}
+            disabled={loading}
+          >
+            <Send className="h-4 w-4" />
           </Button>
         </div>
       </section>
     </div>
   );
-}
+};
 
 export default ChatBox;
