@@ -111,7 +111,7 @@ const ChatBox = () => {
       {/* Chat messages */}
       <section
         ref={chatRef}
-        className="flex-1 overflow-auto p-4 space-y-3 bg-gray-50 rounded-lg"
+        className="flex-1 overflow-auto p-4 space-y-3 rounded-lg"
       >
         {messages.map((msg, i) => (
           <div

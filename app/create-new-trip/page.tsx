@@ -1,14 +1,15 @@
 import React from 'react';
 import ChatBox from './_components/ChatBox';
+import { Itenary } from './_components/Itenary';
 
 const CreateNewTrip = () => {
   return (
-    <div className='grid grid-cols-1 md:grid-cols-2 gap-5 p-10'>
+    <div className='grid grid-cols-2 md:grid-cols-3 gap-5 p-10'>
       <div>
         <ChatBox />
       </div>
-      <div>
-        Map and trip planner
+      <div className='col-span-2'>
+        <Itenary/>
       </div>
     </div>
   );
