@@ -1,4 +1,5 @@
 "use client";
+import { Calendar, DollarSign, User } from "lucide-react";
 import {
   useMotionValueEvent,
   useScroll,
@@ -12,8 +13,19 @@ interface TimelineEntry {
   content: React.ReactNode;
 }
 
+interface tripInfo
+{
+  destination:string;
+  duration: string;
+  origin: string;
+  budget: string;
+  group_size: string;
+  hotels:any;
+  itinerary:any;
+}
 
-export const Timeline = ({ data,TRIP_DETAILS }: { data: TimelineEntry[], TRIP_DETAILS : TimelineProps }) => {
+
+export const Timeline = ({ data ,tripdetail}: { data: TimelineEntry[] ,tripdetail:tripInfo}) => {
   const ref = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
@@ -40,15 +52,25 @@ export const Timeline = ({ data,TRIP_DETAILS }: { data: TimelineEntry[], TRIP_DE
     >
       <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-10">
         <h2 className="text-lg md:text-4xl mb-4 text-black dark:text-white max-w-4xl">
-          Changelog from my journey
+          Your Travel Plan From <strong className="text-primary">{tripdetail.origin}</strong> to <strong className="text-primary">{tripdetail.destination}</strong>
         </h2>
-        <p className="text-neutral-700 dark:text-neutral-300 text-sm md:text-base max-w-sm">
-          I&apos;ve been working on Aceternity for the past 2 years. Here&apos;s
-          a timeline of my journey.
-        </p>
+        <div className="flex gap-5">
+          <div className="flex justify-center align-middle">
+            <User/>
+            <p className="text-primary font-bold text-2xl">{tripdetail.group_size}</p>
+          </div>
+          <div className="flex gap-1 text-2xl">
+            <Calendar/>
+            <p className="text-primary font-bold ">{tripdetail.duration}</p>
+          </div>
+          <div className="flex gap-1 text-2xl font-bold ">
+            <DollarSign/>
+            <strong className="text-primary">{tripdetail.budget}</strong>
+          </div>
+        </div>
       </div>
 
-      <div ref={ref} className="relative max-w-7xl mx-auto pb-20">
+      <div ref={ref} className="relative max-w-7xl mx-auto pb-40">
         {data.map((item, index) => (
           <div
             key={index}
@@ -58,7 +80,7 @@ export const Timeline = ({ data,TRIP_DETAILS }: { data: TimelineEntry[], TRIP_DE
               <div className="h-10 absolute left-3 md:left-3 w-10 rounded-full bg-white dark:bg-black flex items-center justify-center">
                 <div className="h-4 w-4 rounded-full bg-neutral-200 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 p-2" />
               </div>
-              <h3 className="hidden md:block text-xl md:pl-20 md:text-xl font-bold text-neutral-500 dark:text-neutral-500 ">
+              <h3 className="hidden md:block text-2xl md:pl-20 md:text-3xl font-bold text-neutral-500 dark:text-neutral-500 ">
                 {item.title}
               </h3>
             </div>
