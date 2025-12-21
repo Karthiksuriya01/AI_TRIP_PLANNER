@@ -13,9 +13,14 @@ type Message = {
   role: "user" | "assistant";
   content: string;
   ui: string;
+  data?: any;
 };
 
-const ChatBox = () => {
+interface ChatBoxProps {
+  onFinalResponse?: (data: any) => void;
+}
+
+const ChatBox = ({ onFinalResponse }: ChatBoxProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -65,14 +70,33 @@ const ChatBox = () => {
       console.log("API Response JSON:", result.data);
       
       // Update with assistant's response
-      !isFinal && setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: result.data.resp || "No response received",
-          ui: result?.data?.ui
-        },
-      ]);
+      if (!isFinal) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: result.data.resp || "No response received",
+            ui: result?.data?.ui,
+            data: result.data
+          },
+        ]);
+      } else {
+        // Final response - send to parent for testing
+        const finalData = result.data;
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: "✅ Trip plan ready!",
+            ui: "final",
+            data: finalData
+          },
+        ]);
+        
+        if (onFinalResponse) {
+          onFinalResponse(finalData);
+        }
+      }
     } catch (err) {
       console.error("Error:", err);
       setMessages((prev) => [
@@ -100,6 +124,24 @@ const ChatBox = () => {
         setUserInput(v);
         onSend();
       }} />
+    } else if (ui === 'interests') {
+      const interests = ['Adventure', 'Sightseeing', 'Cultural', 'Food', 'Relaxation', 'Nightlife', 'Shopping', 'Nature'];
+      return (
+        <div className="flex flex-wrap gap-2 p-3 bg-blue-50 rounded-lg mt-2">
+          {interests.map((interest) => (
+            <button
+              key={interest}
+              onClick={() => {
+                setUserInput(interest);
+                onSend();
+              }}
+              className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-full transition-colors"
+            >
+              {interest}
+            </button>
+          ))}
+        </div>
+      );
     }
     // else if(ui == 'final')
     //   return 

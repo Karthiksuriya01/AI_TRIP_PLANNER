@@ -229,24 +229,24 @@ const tripdetails = {
 
 export function Itenary() {
   const data = [
-    {
+    // {
 
-      title: "Hotels",
-      content: (
-        <div>
+    //   title: "Hotels",
+    //   content: (
+    //     <div>
 
-          <p
-            className="mb-8 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
+    //       <p
+    //         className="mb-8 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
 
-          </p>
-          <div className="grid grid-cols-2 gap-4">
-            {tripdetails.hotels.map((hotel, index) =>
-              <HotelCards hotel={hotel} key={index} />
-            )}
-          </div>
-        </div>
-      ),
-    },
+    //       </p>
+    //       <div className="grid grid-cols-2 gap-4">
+    //         {tripdetails.hotels.map((hotel, index) =>
+    //           <HotelCards hotel={hotel} key={index} />
+    //         )}
+    //       </div>
+    //     </div>
+    //   ),
+    // },
     ...tripdetails?.itinerary.map((dayData, index) => ({
       title: `Day ${dayData?.day}`,
       content: (
