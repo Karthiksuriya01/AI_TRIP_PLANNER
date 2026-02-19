@@ -5,21 +5,21 @@ export const budgetTypes = [
         id: "low",
         label: "Budget Friendly",
         description: "Ideal for backpackers and budget-conscious travelers",
-        range: "$0-$100 per day",
+        range: "",
         icon: <Wallet className="w-6 h-6 text-primary" />
     },
     {
         id: "medium",
         label: "Moderate",
         description: "Comfortable travel with mid-range accommodations",
-        range: "$100-$300 per day",
+        range: "",
         icon: <CircleDollarSign className="w-6 h-6 text-primary" />
     },
     {
         id: "high",
         label: "High",
         description: "Premium experience with high-end amenities",
-        range: "$300+ per day",
+        range: "",
         icon: <BadgeDollarSign className="w-6 h-6 text-primary" />
     }
 ];
