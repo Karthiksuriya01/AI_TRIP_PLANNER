@@ -14,9 +14,14 @@ type Message = {
   role: "user" | "assistant";
   content: string;
   ui: string;
+  data?: any;
 };
 
-const ChatBox = () => {
+interface ChatBoxProps {
+  onFinalResponse?: (data: any) => void;
+}
+
+const ChatBox = ({ onFinalResponse }: ChatBoxProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -67,21 +72,48 @@ const ChatBox = () => {
 
       console.log("API Response JSON:", result.data);
       
+<<<<<<< HEAD
       // If this is the final response, save the trip data to context
       if (isFinal && result.data.trip_plan) {
         setTripData(result.data.trip_plan as TripDetails);
       }
       
       // Update with assistant's response only if not final
+=======
+      // Update with assistant's response
+>>>>>>> 859f68c18c38d873d696e9b32112aae9199f7f2f
       if (!isFinal) {
         setMessages((prev) => [
           ...prev,
           {
             role: "assistant",
             content: result.data.resp || "No response received",
+<<<<<<< HEAD
             ui: result?.data?.ui
           },
         ]);
+=======
+            ui: result?.data?.ui,
+            data: result.data
+          },
+        ]);
+      } else {
+        // Final response - send to parent for testing
+        const finalData = result.data;
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: "✅ Trip plan ready!",
+            ui: "final",
+            data: finalData
+          },
+        ]);
+        
+        if (onFinalResponse) {
+          onFinalResponse(finalData);
+        }
+>>>>>>> 859f68c18c38d873d696e9b32112aae9199f7f2f
       }
     } catch (err) {
       console.error("Error:", err);
@@ -114,6 +146,24 @@ const ChatBox = () => {
         setUserInput(v);
         onSend();
       }} />
+    } else if (ui === 'interests') {
+      const interests = ['Adventure', 'Sightseeing', 'Cultural', 'Food', 'Relaxation', 'Nightlife', 'Shopping', 'Nature'];
+      return (
+        <div className="flex flex-wrap gap-2 p-3 bg-blue-50 rounded-lg mt-2">
+          {interests.map((interest) => (
+            <button
+              key={interest}
+              onClick={() => {
+                setUserInput(interest);
+                onSend();
+              }}
+              className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-full transition-colors"
+            >
+              {interest}
+            </button>
+          ))}
+        </div>
+      );
     }
     return null;
   }

@@ -24,6 +24,7 @@ export function Itenary() {
 
   // Build the data for Timeline component using dynamic trip data
   const data = [
+<<<<<<< HEAD
     {
       title: "Hotels",
       content: (
@@ -40,6 +41,28 @@ export function Itenary() {
     },
     ...tripData.itinerary.map((dayData, index) => ({
       title: `Day ${dayData.day}`,
+=======
+    // {
+
+    //   title: "Hotels",
+    //   content: (
+    //     <div>
+
+    //       <p
+    //         className="mb-8 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
+
+    //       </p>
+    //       <div className="grid grid-cols-2 gap-4">
+    //         {tripdetails.hotels.map((hotel, index) =>
+    //           <HotelCards hotel={hotel} key={index} />
+    //         )}
+    //       </div>
+    //     </div>
+    //   ),
+    // },
+    ...tripdetails?.itinerary.map((dayData, index) => ({
+      title: `Day ${dayData?.day}`,
+>>>>>>> 859f68c18c38d873d696e9b32112aae9199f7f2f
       content: (
         <DayCards dayData={dayData} key={index} />
       )
