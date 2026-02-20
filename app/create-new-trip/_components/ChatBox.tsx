@@ -8,6 +8,7 @@ import { Send } from "lucide-react";
 import GroupSizeUi from "./GroupSizeUi";
 import BudgetType from "./BudgetType";
 import DaysSelector from "./DaysSelector";
+import { useTrip, TripDetails } from "@/context/TripContext";
 
 type Message = {
   role: "user" | "assistant";
@@ -20,7 +21,10 @@ const ChatBox = () => {
   const [userInput, setUserInput] = useState("");
   const [loading, setLoading] = useState(false);
   const chatRef = useRef<HTMLDivElement | null>(null);
-  const [isFinal, setisFinal] = useState(false);
+  const [isFinal, setIsFinal] = useState(false);
+  
+  // Use Trip Context
+  const { setTripData, setIsLoading } = useTrip();
 
   // Auto scroll to bottom on new message
   useEffect(() => {
@@ -29,17 +33,16 @@ const ChatBox = () => {
     }
   }, [messages]);
 
-  //for final
+  // for final - trigger the final API call when ui is 'final'
   useEffect(() => {
     const lastMsg = messages[messages.length-1];
-    if(lastMsg?.ui == 'final')
+    if(lastMsg?.ui === 'final')
     {
-      setisFinal(true)
+      setIsFinal(true)
       setUserInput('OK, Great')
       onSend()
     }
-      
-  })
+  }, [messages])
 
   const onSend = async () => {
     if (!userInput.trim()) return;
@@ -58,21 +61,28 @@ const ChatBox = () => {
 
     try {
       const result = await axios.post("/api/ai", {
-        messages: updatedMessages,  // Use the updated messages array
+        messages: updatedMessages,
         isFinal: isFinal
       });
 
       console.log("API Response JSON:", result.data);
       
-      // Update with assistant's response
-      !isFinal && setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: result.data.resp || "No response received",
-          ui: result?.data?.ui
-        },
-      ]);
+      // If this is the final response, save the trip data to context
+      if (isFinal && result.data.trip_plan) {
+        setTripData(result.data.trip_plan as TripDetails);
+      }
+      
+      // Update with assistant's response only if not final
+      if (!isFinal) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: result.data.resp || "No response received",
+            ui: result?.data?.ui
+          },
+        ]);
+      }
     } catch (err) {
       console.error("Error:", err);
       setMessages((prev) => [
@@ -81,6 +91,10 @@ const ChatBox = () => {
       ]);
     } finally {
       setLoading(false);
+      // Reset isFinal after the request is complete
+      if (isFinal) {
+        setIsFinal(false);
+      }
     }
   };
 
@@ -101,8 +115,6 @@ const ChatBox = () => {
         onSend();
       }} />
     }
-    // else if(ui == 'final')
-    //   return 
     return null;
   }
 
@@ -127,7 +139,6 @@ const ChatBox = () => {
             >
               {msg.content}
               {RenderGenerativeUi(msg.ui)}
-              {/* {console.log(msg.ui)} */}
             </div>
           </div>
         ))}
